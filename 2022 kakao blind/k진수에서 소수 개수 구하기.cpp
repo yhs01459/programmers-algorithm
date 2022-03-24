@@ -7,53 +7,52 @@
 using namespace std;
 
 //소수인지 검사 해주는 함수
-bool issosu(vector<char> v) {
+bool isPrime(vector<char> v) {
 
     
-    string s;
+    string str;
     for (int i = 0; i < v.size(); i++) {
-        s.push_back(v[i]);
+        str.push_back(v[i]);
     }
-    long a = stol(s); // 이 부분을 간과함 n을 k진수로 바꿨을때 자릿수가 int 타입으로 표현할 수 있는 범위를 훨씬 넘어설 수 있다는것을 간과
-    if (a < 2) return false;
-    for (int i = 2; i <= sqrt(a); i++) {
-        if (a % i == 0) {
+    long num = stol(str); // 이 부분을 간과함 n을 k진수로 바꿨을때 자릿수가 int 타입으로 표현할 수 있는 범위를 훨씬 넘어설 수 있다는것을 간과
+    if (num < 2) return false;
+    for (int i = 2; i <= sqrt(num); i++) {
+        if (num % i == 0) {
             return false;
         }
     }
     return true;
-
 }
 
 //k진수로 바꿔 문자열로 변경해주는 함수 
 string changeNum(int a, int b) {
-    string s = "";
-    stack<char> stc;
+    string str = "";
+    stack<char> temp;
     //10진
     while (a >= b) {
         
-        stc.push((a % b)+'0');
+        temp.push((a % b)+'0');
         a = a / b;
     }
-    stc.push(a+'0');
+    temp.push(a+'0');
 
-    while (!stc.empty()) {
-        s.push_back(stc.top());
-        stc.pop();
+    while (!temp.empty()) {
+        str.push_back(temp.top());
+        temp.pop();
     }
-    return s;
+    return str;
 }
 
 int solution(int n, int k) {
     int answer = 0;
     vector<char> v;
-    string s = changeNum(n, k); //k진수로 변경
+    string str = changeNum(n, k); //k진수로 변경
 
     // 0을 만나면 그 전까지 저장된 값이 소수인지 확인
-    for (int i = 0; i < s.size(); i++) {
-        if (s[i] == '0') {
+    for (int i = 0; i < str.size(); i++) {
+        if (str[i] == '0') {
             if (!v.empty()) {
-                if (issosu(v)) {
+                if (isPrime(v)) {
                     answer++;
                 }
                 v.clear();
@@ -63,13 +62,13 @@ int solution(int n, int k) {
             }
         }
         else {
-            v.push_back(s[i]);
+            v.push_back(str[i]);
         }
     }
 
     // 마지막에 0을 만나지못해 벡터에 값이 남아있는 경우 처리
     if (!v.empty()) {
-        if (issosu(v)) {
+        if (isPrime(v)) {
             answer++;
         }
         v.clear();

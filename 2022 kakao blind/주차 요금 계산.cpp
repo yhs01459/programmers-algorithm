@@ -11,66 +11,67 @@ using namespace std;
 vector<int> solution(vector<int> fees, vector<string> records) {
     vector<int> answer;
     
-    map<string, string> m1; // 차량번호 - 입출차시간
-    map<string, int> m2; // 차량번호 - 누적시간
+    map<string, string> in; // 차량번호 - 입출차시간
+    map<string, int> parkingTime; // 차량번호 - 누적시간
 
     for (string str : records) {
         //문자열 파싱
-        int index = str.find(' ');
-        string time = str.substr(0, index);
-        string carNum = str.substr(index+1);
-        int index2 = carNum.find(' ');
-        string inOut = carNum.substr(index2 + 1);
-        carNum = carNum.substr(0, index2);
+        int blank = str.find(' ');
+        string time = str.substr(0, blank);
+        string carNum = str.substr(blank+1);
+        int blank2 = carNum.find(' ');
+        string inOut = carNum.substr(blank2 + 1);
+        carNum = carNum.substr(0, blank2);
         
         
         if (inOut == "IN") {
-            m1.insert({ carNum, time });
+           in.insert({ carNum, time });
         }
         else if (inOut == "OUT") {
             map<string, string>::iterator iter;
-            iter = m1.find(carNum);
-            string k = iter->second; 
-            m1.erase(iter);
+            iter = in.find(carNum);
+            string inTime = iter->second;  // 입차 시간
+            in.erase(iter);
             int h = stoi(time.substr(0, 2));
-            int min = stoi(time.substr(3, 2));
+            int minute = stoi(time.substr(3, 2));
 
-            h = h - stoi(k.substr(0, 2));
-            min = min - stoi(k.substr(3, 2));
-            if (min < 0) {
-                min = 60 + min;
+            h = h - stoi(inTime.substr(0, 2));
+            minute = minute - stoi(inTime.substr(3, 2));
+            if (minute < 0) {
+                minute = 60 + minute;
                 h = h - 1;
             }
-            min = h * 60 + min; //분으로 통일
-            if (m2.find(carNum) == m2.end()) {
-                m2.insert({ carNum , min });
+            minute = h * 60 + minute; //분으로 통일
+            if (parkingTime.find(carNum) == parkingTime.end()) {
+                parkingTime.insert({ carNum , minute });
             }
             else {
-                m2[carNum] += min;
+                parkingTime[carNum] += minute;
             }
             
         }
     }
+
     //입차한 기록은 있으나 출차한 기록이 없는 경우
-   while (!m1.empty()) {
+   while (!in.empty()) {
         map<string, string>::iterator iter;
-        iter = m1.begin();
+        iter = in.begin();
         int h = 23;
-        int min = 59;
+        int minute = 59;
         h = h - stoi(iter->second.substr(0, 2));
-        min = min - stoi(iter->second.substr(3, 2));
-        min = h * 60 + min; //분으로 통일
-        if (m2.find(iter->first) == m2.end()) {
-            m2.insert({ iter->first , min });
+        minute = minute - stoi(iter->second.substr(3, 2));
+        minute = h * 60 + minute; //분으로 통일
+        if (parkingTime.find(iter->first) == parkingTime.end()) {
+            parkingTime.insert({ iter->first , minute });
         }
         else {
-            m2[iter->first] += min;
+            parkingTime[iter->first] += minute;
         }
-        m1.erase(iter);
+        in.erase(iter);
     }
     
     //요금계산
-   for (auto it = m2.begin(); it != m2.end(); it++) {
+   for (auto it = parkingTime.begin(); it != parkingTime.end(); it++) {
         int sum = 0;
 
         int t = it->second;
@@ -100,7 +101,7 @@ int main() {
     }
 }
 /*
-    - 문자열 파싱
+    - 문자열 파싱을 해준다. 시간 - 차량 번호 - 입차 및 출차 정보
 *   - IN이 들어오면 차량번호와, 시간을 기록
 *   - OUT이 들어오면 기록된 용지에서 차량번호를 확인하고 시간을 계산
 *   - 계산된 시간과 차량번호를 MAP에 저장
